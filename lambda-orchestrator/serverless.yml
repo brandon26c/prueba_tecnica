@@ -1,0 +1,29 @@
+service: lambda-orchestrator
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  environment:
+    # Usamos host.docker.internal para que el Lambda pueda ver tus servicios
+    # si estuvieran en docker, o localhost si corres nativo.
+    CUSTOMERS_API_URL: ${env:CUSTOMERS_API_URL, 'http://localhost:3001'}
+    ORDERS_API_URL: ${env:ORDERS_API_URL, 'http://localhost:3002'}
+    
+custom:
+  serverless-offline:
+    httpPort: 3000       # Donde recibes peticiones (Postman)
+    websocketPort: 3003  # Puerto extra para websockets
+    lambdaPort: 3004
+plugins:
+  - serverless-offline
+
+functions:
+  createOrder:
+    handler: handler.createOrder
+    events:
+      - http:
+          path: order
+          method: post
+          cors: true

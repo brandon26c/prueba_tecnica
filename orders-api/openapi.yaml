@@ -1,0 +1,48 @@
+openapi: 3.0.0
+info:
+  title: Orders API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3002
+paths:
+  /orders:
+    post:
+      summary: Crear una orden
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId:
+                  type: integer
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productId:
+                        type: integer
+                      qty:
+                        type: integer
+      responses:
+        '201':
+          description: Orden creada
+  /orders/{id}/confirm:
+    post:
+      summary: Confirmar orden (Idempotente)
+      parameters:
+        - name: X-Idempotency-Key
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Orden confirmada
+  /orders/{id}/cancel:
+    post:
+      summary: Cancelar orden y devolver stock
+      responses:
+        '200':
+          description: Orden cancelada
