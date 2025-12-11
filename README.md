@@ -1,5 +1,3 @@
-# Sistema de Gestión de Pedidos B2B (Backend Challenge)
-
 ## Estructura
 * **customers-api**: Microservicio de gestión de clientes (Node.js + Express + MySQL).
 * **orders-api**: Microservicio de gestión de pedidos e inventario (Node.js + Express + MySQL + Transacciones).
@@ -13,6 +11,11 @@
 
 ## Instrucciones de Instalación
 
+### Opcional revisar que estes siempre trabajando en la carpeta prueba_tecnica
+```bash
+cd prueba_tecnica
+```
+
 ### 1. Base de Datos
 Levantar el contenedor de MySQL:
 ```bash
@@ -24,15 +27,19 @@ docker-compose up -d
 ```bash
 ### service customers
 cd customers-api
+Copy-Item env.local .env
 npm install
 npm run dev
 
-### service
+### service orders
 cd orders-api
+Copy-Item env.local .env
 npm install
 npm run dev
 
+### lambda
 cd lambda-orchestrator
+npm install --save-dev serverless serverless-offline
 npm run dev
 ```
 ### Ejemplos Curl
