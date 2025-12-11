@@ -3,11 +3,59 @@ info:
   title: Orders API
   version: 1.0.0
 servers:
-  - url: http://localhost:3002
+  - url: http://localhost:3002/orders
 paths:
-  /orders:
+  /products:
+    get:
+      summary: Listar productos
+      description: Búsqueda por nombre/SKU con paginación por cursor.
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: cursor
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: Lista de productos
     post:
-      summary: Crear una orden
+      summary: Crear Producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sku, name, price_cents, stock]
+              properties:
+                sku: { type: string }
+                name: { type: string }
+                price_cents: { type: integer }
+                stock: { type: integer }
+      responses:
+        '201':
+          description: Producto creado exitosamente
+
+  /products/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      summary: Detalle de producto
+      responses:
+        '200':
+          description: Datos del producto
+        '404':
+          description: Producto no encontrado
+    put:
+      summary: Actualizar Stock o Precio (Parcial)
+      description: Aunque usa PUT, la lógica permite actualizar campos individuales.
       requestBody:
         required: true
         content:
@@ -15,34 +63,106 @@ paths:
             schema:
               type: object
               properties:
-                customerId:
-                  type: integer
+                stock: { type: integer }
+                price_cents: { type: integer }
+      responses:
+        '200':
+          description: Producto actualizado correctamente
+        '400':
+          description: Faltan datos
+
+  /:
+    get:
+      summary: Buscar Órdenes
+      description: Filtros por estado, fecha y paginación.
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [CREATED, CONFIRMED, CANCELED] }
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+        - name: cursor
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Lista de órdenes
+    post:
+      summary: Crear Orden (Transaccional)
+      description: Valida cliente, verifica stock y reserva productos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, items]
+              properties:
+                customerId: { type: integer }
                 items:
                   type: array
                   items:
                     type: object
+                    required: [productId, qty]
                     properties:
-                      productId:
-                        type: integer
-                      qty:
-                        type: integer
+                      productId: { type: integer }
+                      qty: { type: integer }
       responses:
         '201':
-          description: Orden creada
-  /orders/{id}/confirm:
+          description: Orden creada (Status CREATED)
+
+  /{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      summary: Obtener Orden por ID
+      description: Incluye el detalle de los items comprados.
+      responses:
+        '200':
+          description: Detalle de orden con items
+        '404':
+          description: Orden no encontrada
+
+  /{id}/confirm:
     post:
-      summary: Confirmar orden (Idempotente)
+      summary: Confirmar Orden (Idempotente)
+      description: Requiere header X-Idempotency-Key. Retorna respuesta guardada si se repite.
       parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
         - name: X-Idempotency-Key
           in: header
-          schema:
-            type: string
+          required: true
+          schema: { type: string }
       responses:
         '200':
-          description: Orden confirmada
-  /orders/{id}/cancel:
+          description: Orden confirmada (CONFIRMED)
+        '400':
+          description: Error de estado o falta header
+
+  /{id}/cancel:
     post:
-      summary: Cancelar orden y devolver stock
+      summary: Cancelar Orden
+      description: Restaura el stock. Si es CONFIRMED, solo permite cancelar dentro de 10 min.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
       responses:
         '200':
-          description: Orden cancelada
+          description: Orden cancelada y stock restaurado
+        '400':
+          description: Error de regla de negocio o ya cancelada

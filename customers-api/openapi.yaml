@@ -6,10 +6,68 @@ servers:
   - url: http://localhost:3001
 paths:
   /customers:
+    get:
+      summary: Buscar clientes (Paginación por cursor)
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Buscar por nombre o email
+        - name: cursor
+          in: query
+          schema:
+            type: integer
+          description: ID del último cliente visto
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Lista de clientes paginada
     post:
       summary: Crear un nuevo cliente
       requestBody:
         required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        '201':
+          description: Cliente creado
+        '400':
+          description: Email duplicado o datos inválidos
+  /customers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Obtener cliente por ID
+      responses:
+        '200':
+          description: Datos del cliente
+        '404':
+          description: Cliente no encontrado
+    put:
+      summary: Actualizar cliente
+      description: Actualiza nombre, email o teléfono.
+      requestBody:
         content:
           application/json:
             schema:
@@ -22,19 +80,38 @@ paths:
                 phone:
                   type: string
       responses:
-        '201':
-          description: Cliente creado
-  /customers/{id}:
+        '200':
+          description: Cliente actualizado
+        '404':
+          description: Cliente no encontrado
+    delete:
+      summary: Eliminar cliente
+      description: Solo si no tiene pedidos asociados.
+      responses:
+        '200':
+          description: Cliente eliminado correctamente
+        '400':
+          description: Error de integridad (El cliente tiene pedidos)
+        '404':
+          description: Cliente no encontrado
+  /internal/customers/{id}:
     get:
-      summary: Obtener cliente por ID
+      summary: Obtener cliente (Uso interno con Token)
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: integer
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Datos del cliente
         '404':
           description: Cliente no encontrado
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

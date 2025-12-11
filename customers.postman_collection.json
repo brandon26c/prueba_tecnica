@@ -1,0 +1,126 @@
+{
+	"info": {
+		"_postman_id": "f88b72de-c9b4-4ad5-a0e5-14ed7020b97b",
+		"name": "customers",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29335551"
+	},
+	"item": [
+		{
+			"name": "http://localhost:3001/customers",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "token_super_secreto_123",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Brandon Test\",\r\n  \"email\": \"brandon@test.com\",\r\n  \"phone\": \"555-0000\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:3002/orders",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"customerId\": 1,\r\n  \"items\": [\r\n    { \"productId\": 1, \"qty\": 1 }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3002/orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:3002/orders/2/cancel",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/orders/2/cancel",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"orders",
+						"2",
+						"cancel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:3000/dev/order",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"customerId\": 1,\r\n  \"items\": [\r\n    { \"productId\": 2, \"qty\": 1 }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/dev/order",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dev",
+						"order"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

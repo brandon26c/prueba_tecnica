@@ -1,0 +1,108 @@
+openapi: 3.0.0
+info:
+  title: Lambda Orchestrator
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/dev
+paths:
+  /order:
+    post:
+      summary: Orquestar la creación de un pedido (Estado CREATED)
+      description: Valida el cliente en Customers API y crea el pedido en Orders API.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId:
+                  type: integer
+                  example: 1
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productId:
+                        type: integer
+                        example: 2
+                      qty:
+                        type: integer
+                        example: 1
+      responses:
+        '201':
+          description: Orquestación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  customer_summary:
+                    type: object
+                  order_details:
+                    type: object
+        '400':
+          description: Datos inválidos o stock insuficiente
+        '404':
+          description: Cliente no encontrado
+
+  /orchestrator/create-and-confirm-order:
+    post:
+      summary: Flujo completo
+      description: Crea la orden y la confirma inmediatamente usando Idempotencia.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customerId
+                - items
+                - idempotency_key
+              properties:
+                customerId:
+                  type: integer
+                  example: 1
+                idempotency_key:
+                  type: string
+                  description: Clave única para evitar duplicados
+                  example: "clave-unica-flujo-completo"
+                correlation_id:
+                  type: string
+                  description: ID para traza de logs (opcional)
+                  example: "trace-12345"
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productId:
+                        type: integer
+                        example: 2
+                      qty:
+                        type: integer
+                        example: 1
+      responses:
+        '200':
+          description: Orden procesada y confirmada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Flujo de compra completado exitosamente"
+                  customer:
+                    type: object
+                  order:
+                    type: object
+                    description: Detalles de la orden confirmada
+        '400':
+          description: Error de validación o stock
+        '404':
+          description: Cliente no encontrado

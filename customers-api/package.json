@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
-  },
+  "scripts": {
+      "start": "node src/index.js",
+      "dev": "nodemon src/index.js",
+      "build": "echo 'No build step required for Node.js' && exit 0",
+      "migrate": "node src/scripts/db-setup.js schema.sql",
+      "seed": "node src/scripts/db-setup.js seed.sql",
+      "test": "echo 'No tests specified' && exit 0"
+    },
   "keywords": [],
   "author": "",
   "license": "ISC",
